@@ -1,33 +1,23 @@
-# Use an official OpenJDK image as the base image
-FROM openjdk:17-jdk-slim
+# Use a multi-stage build to keep the final image size small
 
-# Set working directory
+# Stage 1: Build the application
+FROM maven:3.9.2-eclipse-temurin-17 AS builder
 WORKDIR /app
+COPY pom.xml ./
+COPY src ./src
+RUN mvn clean package -DskipTests
 
-# Copy the application JAR file
-COPY target/news-consumer-0.0.1-SNAPSHOT.jar news-consumer.jar
+# Stage 2: Run the application
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=builder /app/target/*.jar news-consumer.jar
 
-# Copy the application.yml from resources directory
-COPY src/main/resources/application.yml /app/config/application.yml
+# Expose port 8080 for the application
+EXPOSE 7080
 
-# Expose the application port
-EXPOSE 7082
-
-# Environment variables
-ENV SPRING_CONFIG_LOCATION=/app/config/application.yml
+# Set environment variables for Redis
 ENV REDIS_HOST=localhost
 ENV REDIS_PORT=6379
-ENV REDIS_PASSWORD=my-password
 ENV KAFKA_BROKER=localhost:39092,localhost:39093,localhost:39094
-ENV KAFKA_TOPIC=nyt.rss.articles
-
-# Add metadata
-LABEL maintainer="yourname@example.com"
-LABEL description="News Consumer Service"
-
-# Copy the entrypoint script
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
 # Run the application
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["java", "-jar", "news-consumer.jar"]

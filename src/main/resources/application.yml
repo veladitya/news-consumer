@@ -2,7 +2,7 @@ spring:
   application:
     name: news-consumer
   kafka:
-    bootstrap-servers: localhost:39092,localhost:39093,localhost:39094
+    bootstrap-servers: ${KAFKA_BROKER:localhost:39092,localhost:39093,localhost:39094}
     listener:
       ack-mode: manual
     consumer:
@@ -14,9 +14,8 @@ spring:
       auto-offset-reset: earliest
 
 redis:
-  host: localhost
-  password: my-password
-  port: 6379
+  host: ${REDIS_HOST:redis-server}
+  port: ${REDIS_PORT:6379}
   ttl: 86400  # TTL of 24 hours
 server:
-  port: 8082
+  port: 7080
