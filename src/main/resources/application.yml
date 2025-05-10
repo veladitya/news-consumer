@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: news-consumer
+  kafka:
+    bootstrap-servers: localhost:39092,localhost:39093,localhost:39094
+    listener:
+      ack-mode: manual
+    consumer:
+      group-id: news-consumer-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+      auto-offset-reset: earliest
+
+redis:
+  host: localhost
+  password: my-password
+  port: 6379
+  ttl: 86400  # TTL of 24 hours
+server:
+  port: 8082
